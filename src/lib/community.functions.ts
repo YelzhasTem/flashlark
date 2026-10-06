@@ -95,6 +95,16 @@ function ratingForCollection(
     : 0;
 }
 
+// Reads one public or unlisted deck by id. Table reads only return public decks
+// to other users, so unlisted ones can't be listed, only opened by link.
+async function getMarketplaceDeck(supabase: SupabaseClient<Database>, deckId: string) {
+  const { data, error } = await supabase.rpc("get_marketplace_deck", { _deck_id: deckId });
+  const deck = data?.[0];
+  // No row means private, hidden, blocked or deleted: the same 404 as before.
+  if (error || !deck) failMarketplace(error ?? { code: "PGRST116" });
+  return deck;
+}
+
 async function attachCommunityMeta(
   supabase: SupabaseClient<Database>,
   decks: CommunityDeckRow[],
@@ -439,16 +449,9 @@ export const getPublicDeckDetails = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ deckId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: deck, error } = await supabase
-      .from("decks")
-      .select(
-        "id, user_id, name, description, target_language, definition_language, created_at, updated_at, visibility, category, keywords, learner_count, like_count, rating_sum, rating_count, view_count, copy_count, published_at",
-      )
-      .eq("id", data.deckId)
-      .in("visibility", ["public", "unlisted"])
-      .is("hidden_at", null)
-      .single();
-    if (error || !deck) failMarketplace(error);
+    // Unlisted decks are not readable through the decks table by other users.
+    // The RPC opens one deck by its exact id, which is what a direct link carries.
+    const deck = await getMarketplaceDeck(supabase, data.deckId);
 
     const { data: views, error: viewError } = await supabase.rpc("record_marketplace_view", {
       p_resource_type: "deck",
@@ -456,13 +459,13 @@ export const getPublicDeckDetails = createServerFn({ method: "GET" })
     });
     if (viewError || views === null) failMarketplace(viewError);
 
-    const [meta] = await attachCommunityMeta(supabase, [{ ...deck, view_count: views }], userId);
-    const { data: cards, error: cardsError } = await supabase
-      .from("cards")
-      .select("id, term, definition, position")
-      .eq("deck_id", deck.id)
-      .order("position", { ascending: true });
+    const { data: cards, error: cardsError } = await supabase.rpc("get_marketplace_deck_cards", {
+      _deck_id: deck.id,
+    });
     if (cardsError) failMarketplace(cardsError);
+
+    const [meta] = await attachCommunityMeta(supabase, [{ ...deck, view_count: views }], userId);
+    meta.cardCount = cards?.length ?? 0;
 
     const { data: myRating, error: myRatingError } = await supabase
       .from("deck_ratings")
@@ -527,12 +530,7 @@ export const toggleDeckLike = createServerFn({ method: "POST" })
         .insert({ deck_id: data.deckId, user_id: userId });
       if (error) failMarketplace(error);
     }
-    const { data: totals, error: totalsError } = await supabase
-      .from("decks")
-      .select("like_count")
-      .eq("id", data.deckId)
-      .single();
-    if (totalsError || !totals) failMarketplace(totalsError);
+    const totals = await getMarketplaceDeck(supabase, data.deckId);
     return { liked: !existing?.id, likes: totals.like_count };
   });
 
@@ -573,12 +571,7 @@ export const rateDeck = createServerFn({ method: "POST" })
         { onConflict: "deck_id,user_id" },
       );
     if (error) failMarketplace(error);
-    const { data: totals, error: totalsError } = await supabase
-      .from("decks")
-      .select("rating_sum,rating_count")
-      .eq("id", data.deckId)
-      .single();
-    if (totalsError || !totals) failMarketplace(totalsError);
+    const totals = await getMarketplaceDeck(supabase, data.deckId);
     return {
       rating: totals.rating_count ? totals.rating_sum / totals.rating_count : 0,
       ratingCount: totals.rating_count,
@@ -601,12 +594,12 @@ export const rateCollection = createServerFn({ method: "POST" })
         { onConflict: "collection_id,user_id" },
       );
     if (error) failMarketplace(error);
-    const { data: totals, error: totalsError } = await supabase
-      .from("collections")
-      .select("rating_sum,rating_count")
-      .eq("id", data.collectionId)
-      .single();
-    if (totalsError || !totals) failMarketplace(totalsError);
+    const { data: rows, error: totalsError } = await supabase.rpc(
+      "get_marketplace_collection_totals",
+      { _collection_id: data.collectionId },
+    );
+    const totals = rows?.[0];
+    if (totalsError || !totals) failMarketplace(totalsError ?? { code: "PGRST116" });
     return {
       rating: totals.rating_count ? totals.rating_sum / totals.rating_count : 0,
       ratingCount: totals.rating_count,

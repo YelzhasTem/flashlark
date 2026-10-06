@@ -1627,6 +1627,8 @@ export type Database = {
       };
       can_study_card: { Args: { _card_id: string }; Returns: boolean };
       can_study_deck: { Args: { _deck_id: string }; Returns: boolean };
+      can_view_marketplace_collection: { Args: { _collection_id: string }; Returns: boolean };
+      can_view_marketplace_deck: { Args: { _deck_id: string }; Returns: boolean };
       complete_ai_request: {
         Args: {
           p_latency_ms: number;
@@ -1684,6 +1686,46 @@ export type Database = {
           card_ids: string[];
           deck_id: string;
           duplicate: boolean;
+        }[];
+      };
+      get_marketplace_collection_totals: {
+        Args: { _collection_id: string };
+        Returns: {
+          like_count: number;
+          rating_count: number;
+          rating_sum: number;
+        }[];
+      };
+      get_marketplace_deck: {
+        Args: { _deck_id: string };
+        Returns: {
+          category: Database["public"]["Enums"]["deck_category"];
+          copy_count: number;
+          created_at: string;
+          definition_language: string;
+          description: string | null;
+          id: string;
+          keywords: string[];
+          learner_count: number;
+          like_count: number;
+          name: string;
+          published_at: string | null;
+          rating_count: number;
+          rating_sum: number;
+          target_language: string;
+          updated_at: string;
+          user_id: string;
+          view_count: number;
+          visibility: Database["public"]["Enums"]["deck_visibility"];
+        }[];
+      };
+      get_marketplace_deck_cards: {
+        Args: { _deck_id: string };
+        Returns: {
+          definition: string;
+          id: string;
+          position: number;
+          term: string;
         }[];
       };
       has_role: {
