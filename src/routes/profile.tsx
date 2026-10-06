@@ -30,8 +30,8 @@ import { shrinkImageToFit } from "@/lib/image-resize";
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
-      { title: "Profile - Memora" },
-      { name: "description", content: "Update your Memora profile." },
+      { title: "Profile - Flashlark" },
+      { name: "description", content: "Update your Flashlark profile." },
     ],
   }),
   component: ProfileRoute,
@@ -317,7 +317,7 @@ function ProfilePage() {
             Manage your account
           </h1>
           <p className="mt-3 text-muted-foreground">
-            Update the name, username, and avatar people see in Memora.
+            Update the name, username, and avatar people see in Flashlark.
           </p>
         </div>
 
@@ -430,7 +430,7 @@ function ProfilePage() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete your account?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This permanently deletes your Memora account and learning data. This action
+                    This permanently deletes your Flashlark account and learning data. This action
                     cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>

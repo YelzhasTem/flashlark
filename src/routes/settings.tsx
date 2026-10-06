@@ -14,7 +14,7 @@ import { type FormEvent, useEffect, useState } from "react";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — Memora" },
+      { title: "Settings — Flashlark" },
       { name: "description", content: "Manage learning modes and app preferences." },
     ],
   }),

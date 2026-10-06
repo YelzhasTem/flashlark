@@ -44,7 +44,7 @@ export function DailyReminderCard() {
       const ok = await setDailyReminder(nextEnabled ? toTime(nextTime) : null);
       if (nextEnabled && !ok) {
         setEnabled(false);
-        toast.error("Allow notifications for Memora in iOS Settings to get reminders.");
+        toast.error("Allow notifications for Flashlark in iOS Settings to get reminders.");
         return;
       }
       setEnabled(nextEnabled);

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>Memora</string>
+        <string>Flashlark</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -50,11 +50,11 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Memora uses the camera when you take a photo of a word list or add a profile picture.</string>
+	<string>Flashlark uses the camera when you take a photo of a word list or add a profile picture.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Memora uses your photos when you import words from a picture or choose a profile picture.</string>
+	<string>Flashlark uses your photos when you import words from a picture or choose a profile picture.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Memora saves exported files and images to your photo library only when you ask it to.</string>
+	<string>Flashlark saves exported files and images to your photo library only when you ask it to.</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>

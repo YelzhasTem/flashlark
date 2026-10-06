@@ -56,7 +56,7 @@ npm run ios:open      # открывает проект в Xcode
   (этого требуют условия Gemini API), а Apple требует, чтобы рейтинг был не ниже возраста из Terms.
 - Скриншоты iPhone 6.9" (1320×2868) обязательны; 6.5" (1284×2778) желательно.
 - App Review → Sign-in required: логин и пароль демо-аккаунта с подтверждённым email и парой колод.
-- Notes for Review (пример): «Memora is a flashcard app. Users can publish decks to a community;
+- Notes for Review (пример): «Flashlark is a flashcard app. Users can publish decks to a community;
   every deck page has Report and Block in the Moderation section at the bottom, and every creator
   page has Report and Block. Reports are reviewed within 24 hours in the in-app moderation queue.
   Account deletion: Profile → Delete account. Please try it with a new account from Sign up, so

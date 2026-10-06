@@ -8,7 +8,7 @@ export const AI_CONSENT_DECLINED_MESSAGE =
   "You did not allow AI features. Try again and tap Allow to use them.";
 
 const FALLBACK_PROMPT =
-  "Memora sends the words, text, web page or image you submit to Google's Gemini API to create the result. Your email and account details are not sent. Allow AI features?";
+  "Flashlark sends the words, text, web page or image you submit to Google's Gemini API to create the result. Your email and account details are not sent. Allow AI features?";
 
 type Listener = (open: boolean) => void;
 

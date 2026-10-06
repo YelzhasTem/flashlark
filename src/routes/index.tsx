@@ -19,13 +19,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Memora — learn vocabulary and remember it longer" },
+      { title: "Flashlark — learn vocabulary and remember it longer" },
       {
         name: "description",
         content:
-          "Memora is a vocabulary app with spaced repetition. Move words into long-term memory and stop forgetting them.",
+          "Flashlark is a vocabulary app with spaced repetition. Move words into long-term memory and stop forgetting them.",
       },
-      { property: "og:title", content: "Memora — learn vocabulary for the long term" },
+      { property: "og:title", content: "Flashlark — learn vocabulary for the long term" },
       {
         property: "og:description",
         content:
@@ -73,7 +73,7 @@ function Landing() {
             Learn vocabulary <span className="text-primary">and remember them for good</span>
           </h1>
           <p className="mt-7 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed text-muted-foreground">
-            Memora uses spaced repetition to move every word into long-term memory. No cramming,
+            Flashlark uses spaced repetition to move every word into long-term memory. No cramming,
             just short reviews at the right time.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
@@ -108,7 +108,7 @@ function Landing() {
               Words move into long-term memory instead of vanishing the next day
             </h2>
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-              Memora tracks how well you know each word and chooses when to review it: after 10
+              Flashlark tracks how well you know each word and chooses when to review it: after 10
               minutes, a day, a week, a month. This is
               <span className="text-foreground font-medium"> spaced repetition</span>, a proven
               memorization method.
@@ -167,7 +167,7 @@ function Landing() {
             {
               icon: Clock,
               title: "Spaced repetition",
-              desc: "At the heart of Memora is an algorithm that spaces reviews over time so words settle into long-term memory.",
+              desc: "At the heart of Flashlark is an algorithm that spaces reviews over time so words settle into long-term memory.",
             },
             {
               icon: Sparkles,
@@ -192,7 +192,7 @@ function Landing() {
             {
               icon: Brain,
               title: "Smart reminders",
-              desc: "Memora tells you when a deck is ready for review, not too early and not too late.",
+              desc: "Flashlark tells you when a deck is ready for review, not too early and not too late.",
             },
           ].map((f) => (
             <div
@@ -230,7 +230,7 @@ function Landing() {
             {
               n: "03",
               t: "Review on schedule",
-              d: "Memora reminds you when to come back to the words.",
+              d: "Flashlark reminds you when to come back to the words.",
             },
             { n: "04", t: "Remember longer", d: "Words move into long-term memory." },
           ].map((s) => (
@@ -273,7 +273,7 @@ function Landing() {
             <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-primary to-accent grid place-items-center text-primary-foreground font-display font-bold text-xs">
               M
             </div>
-            <span>© {new Date().getFullYear()} Memora. Learn words for good.</span>
+            <span>© {new Date().getFullYear()} Flashlark. Learn words for good.</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-5">
             <LegalLinks />

@@ -1,6 +1,6 @@
 # AI security
 
-Memora treats every AI call as an authenticated, metered server operation. Browser UI state and CORS are not security boundaries.
+Flashlark treats every AI call as an authenticated, metered server operation. Browser UI state and CORS are not security boundaries.
 
 ## Endpoints
 

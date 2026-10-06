@@ -7,7 +7,7 @@ const PRODUCTION_URL = "https://word-ace-deck.vercel.app";
 const config: CapacitorConfig = {
   // Must match the Bundle ID registered in App Store Connect.
   appId: "com.yelzhastem.memora",
-  appName: "Memora",
+  appName: "Flashlark",
   webDir: "ios-shell",
   server: {
     url: PRODUCTION_URL,

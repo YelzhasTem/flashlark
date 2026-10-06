@@ -14,5 +14,5 @@ max_frequency = "1m0s"
 otp_length = 8
 
 [auth.email.template.confirmation]
-subject = "Confirm your Memora account"
+subject = "Confirm your Flashlark account"
 content_path = "./supabase/templates/confirmation.html"

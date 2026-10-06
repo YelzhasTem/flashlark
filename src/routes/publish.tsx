@@ -175,7 +175,7 @@ function PublishPage() {
             <Globe2 className="mx-auto h-9 w-9 text-muted-foreground" />
             <h2 className="mt-4 font-display text-2xl font-semibold">Nothing selected</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-              Open publishing from a specific deck or collection so Memora knows what to publish.
+              Open publishing from a specific deck or collection so Flashlark knows what to publish.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               <Button asChild variant="outline">
