@@ -23,7 +23,9 @@ import { OFFLINE_SAVE_MESSAGE, useOnlineStatus } from "@/lib/online-status";
 export const Route = createFileRoute("/collections")({
   component: CollectionsPage,
   errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-destructive">Error: {error.message}</div>
+    <div className="p-6 text-sm text-destructive">
+      Error: {error instanceof Error ? error.message : String(error)}
+    </div>
   ),
   notFoundComponent: () => <div className="p-6">Not found</div>,
 });
