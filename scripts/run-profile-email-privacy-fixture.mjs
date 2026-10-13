@@ -29,7 +29,7 @@ const admin = createClient(supabaseUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 const suffix = randomUUID().replaceAll("-", "").slice(0, 16);
-const password = `Memora-${randomUUID()}-Aa1!`;
+const password = `Flashlark-${randomUUID()}-Aa1!`;
 const fixtureUsers = [];
 
 function authClient() {
@@ -39,7 +39,7 @@ function authClient() {
 }
 
 async function createFixtureUser(label) {
-  const email = `memora-security-${suffix}-${label}@example.invalid`;
+  const email = `flashlark-security-${suffix}-${label}@example.invalid`;
   const username = `security_${suffix}_${label}`;
   const { data, error } = await admin.auth.admin.createUser({
     email,

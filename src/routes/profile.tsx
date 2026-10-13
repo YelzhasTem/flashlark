@@ -257,10 +257,10 @@ function ProfilePage() {
       setAvatarFile(null);
 
       window.dispatchEvent(
-        new CustomEvent("memora:username-updated", { detail: normalizedUsername }),
+        new CustomEvent("flashlark:username-updated", { detail: normalizedUsername }),
       );
       window.dispatchEvent(
-        new CustomEvent("memora:profile-updated", {
+        new CustomEvent("flashlark:profile-updated", {
           detail: {
             username: normalizedUsername,
             displayName: cleanDisplayName || null,
@@ -283,9 +283,9 @@ function ProfilePage() {
     try {
       await deleteAccountFn();
       setDeleteDialogOpen(false);
-      window.dispatchEvent(new CustomEvent("memora:username-updated", { detail: "" }));
+      window.dispatchEvent(new CustomEvent("flashlark:username-updated", { detail: "" }));
       window.dispatchEvent(
-        new CustomEvent("memora:profile-updated", {
+        new CustomEvent("flashlark:profile-updated", {
           detail: { username: "", displayName: null, avatarUrl: null },
         }),
       );

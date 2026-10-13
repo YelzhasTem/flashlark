@@ -122,13 +122,13 @@ export function SiteHeader() {
       if (detail?.avatarUrl !== undefined) setAvatarUrl(detail.avatarUrl);
     };
 
-    window.addEventListener("memora:username-updated", handleUsernameUpdate);
-    window.addEventListener("memora:profile-updated", handleProfileUpdate);
+    window.addEventListener("flashlark:username-updated", handleUsernameUpdate);
+    window.addEventListener("flashlark:profile-updated", handleProfileUpdate);
 
     return () => {
       mounted = false;
-      window.removeEventListener("memora:username-updated", handleUsernameUpdate);
-      window.removeEventListener("memora:profile-updated", handleProfileUpdate);
+      window.removeEventListener("flashlark:username-updated", handleUsernameUpdate);
+      window.removeEventListener("flashlark:profile-updated", handleProfileUpdate);
     };
   }, [session]);
 

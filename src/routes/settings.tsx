@@ -143,7 +143,7 @@ function SettingsPage() {
       });
       setUsername(savedProfile.username);
       window.dispatchEvent(
-        new CustomEvent("memora:username-updated", { detail: savedProfile.username }),
+        new CustomEvent("flashlark:username-updated", { detail: savedProfile.username }),
       );
       toast.success("Username updated.");
     } catch (error) {
