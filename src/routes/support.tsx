@@ -5,8 +5,8 @@ import { SUPPORT_EMAIL } from "@/lib/legal";
 export const Route = createFileRoute("/support")({
   head: () => ({
     meta: [
-      { title: "Support — Memora" },
-      { name: "description", content: "Get help with Memora." },
+      { title: "Support — Flashlark" },
+      { name: "description", content: "Get help with Flashlark." },
     ],
   }),
   component: SupportPage,

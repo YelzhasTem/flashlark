@@ -29,7 +29,7 @@ export function LegalPage({ title, children }: { title: string; children: ReactN
           <LegalLinks />
           <p className="mt-4 text-sm">
             <Link to="/" className="hover:text-foreground">
-              Memora
+              Flashlark
             </Link>
           </p>
         </footer>

@@ -122,13 +122,13 @@ export function SiteHeader() {
       if (detail?.avatarUrl !== undefined) setAvatarUrl(detail.avatarUrl);
     };
 
-    window.addEventListener("memora:username-updated", handleUsernameUpdate);
-    window.addEventListener("memora:profile-updated", handleProfileUpdate);
+    window.addEventListener("flashlark:username-updated", handleUsernameUpdate);
+    window.addEventListener("flashlark:profile-updated", handleProfileUpdate);
 
     return () => {
       mounted = false;
-      window.removeEventListener("memora:username-updated", handleUsernameUpdate);
-      window.removeEventListener("memora:profile-updated", handleProfileUpdate);
+      window.removeEventListener("flashlark:username-updated", handleUsernameUpdate);
+      window.removeEventListener("flashlark:profile-updated", handleProfileUpdate);
     };
   }, [session]);
 
@@ -145,7 +145,7 @@ export function SiteHeader() {
   };
 
   const accountName =
-    displayName || username || session?.user.email?.split("@")[0] || "Memora account";
+    displayName || username || session?.user.email?.split("@")[0] || "Flashlark account";
   const accountUsername = username ? `@${username}` : null;
   const accountEmail = session?.user.email ?? "";
   const avatarFallback = (displayName || username || "ME").slice(0, 2).toUpperCase();
@@ -159,7 +159,7 @@ export function SiteHeader() {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm group-hover:scale-105 transition-transform">
             <BookOpenCheck className="h-4.5 w-4.5" strokeWidth={2.25} />
           </span>
-          <span className="font-display text-[17px] font-bold tracking-tight">Memora</span>
+          <span className="font-display text-[17px] font-bold tracking-tight">Flashlark</span>
         </Link>
 
         <nav className="ml-auto flex items-center gap-1 text-sm font-medium">

@@ -74,7 +74,7 @@ import { createAiIdempotencyKey, executeAiRequest } from "@/lib/ai-client";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Memora — learn vocabulary" },
+      { title: "Flashlark — learn vocabulary" },
       {
         name: "description",
         content: "Create your own decks and study vocabulary with flashcards.",

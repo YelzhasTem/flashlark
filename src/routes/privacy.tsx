@@ -5,8 +5,8 @@ import { MINIMUM_AGE, SUPPORT_EMAIL } from "@/lib/legal";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Memora" },
-      { name: "description", content: "How Memora collects, uses and protects your data." },
+      { title: "Privacy Policy — Flashlark" },
+      { name: "description", content: "How Flashlark collects, uses and protects your data." },
     ],
   }),
   component: PrivacyPage,
@@ -16,10 +16,10 @@ function PrivacyPage() {
   return (
     <LegalPage title="Privacy Policy">
       <p>
-        Memora is a flashcard app for learning vocabulary. This policy explains what data we collect
-        when you use the Memora app and website, why we collect it, and the choices you have. We do
-        not sell your data, we do not show ads, and we do not track you across other apps or
-        websites.
+        Flashlark is a flashcard app for learning vocabulary. This policy explains what data we
+        collect when you use the Flashlark app and website, why we collect it, and the choices you
+        have. We do not sell your data, we do not show ads, and we do not track you across other
+        apps or websites.
       </p>
 
       <LegalSection title="Data we collect">
@@ -56,7 +56,7 @@ function PrivacyPage() {
 
       <LegalSection title="How we use your data">
         <p>
-          We use your data only to provide and improve Memora: to create and secure your account,
+          We use your data only to provide and improve Flashlark: to create and secure your account,
           store and sync your decks, schedule reviews, show your statistics, run community features
           you choose to use, answer AI requests, moderate reported content, and respond to support
           requests.
@@ -115,9 +115,9 @@ function PrivacyPage() {
 
       <LegalSection title="Minimum age">
         <p>
-          Memora is only for people who are {MINIMUM_AGE} or older, and we do not knowingly collect
-          data from anyone younger. If you believe someone under {MINIMUM_AGE} has created an
-          account, contact us and we will delete it.
+          Flashlark is only for people who are {MINIMUM_AGE} or older, and we do not knowingly
+          collect data from anyone younger. If you believe someone under {MINIMUM_AGE} has created
+          an account, contact us and we will delete it.
         </p>
       </LegalSection>
 

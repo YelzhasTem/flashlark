@@ -14,7 +14,7 @@ import { type FormEvent, useEffect, useState } from "react";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — Memora" },
+      { title: "Settings — Flashlark" },
       { name: "description", content: "Manage learning modes and app preferences." },
     ],
   }),
@@ -143,7 +143,7 @@ function SettingsPage() {
       });
       setUsername(savedProfile.username);
       window.dispatchEvent(
-        new CustomEvent("memora:username-updated", { detail: savedProfile.username }),
+        new CustomEvent("flashlark:username-updated", { detail: savedProfile.username }),
       );
       toast.success("Username updated.");
     } catch (error) {

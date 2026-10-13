@@ -291,7 +291,7 @@ const pinnedRequest: SafeUrlRequest = async (url, addresses, controller) => {
     const response = await undiciFetch(url, {
       method: "GET",
       headers: {
-        "User-Agent": "MemoraBot/1.0",
+        "User-Agent": "FlashlarkBot/1.0",
         Accept: "text/html,application/xhtml+xml,text/plain;q=0.9",
         "Accept-Encoding": "identity",
       },

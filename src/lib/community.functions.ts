@@ -84,7 +84,7 @@ function ratingFor(deck: Pick<CommunityDeckRow, "rating_sum" | "rating_count">) 
 }
 
 function authorName(profile?: ProfileRow) {
-  return profile?.username || profile?.display_name || "Memora creator";
+  return profile?.username || profile?.display_name || "Flashlark creator";
 }
 
 function ratingForCollection(

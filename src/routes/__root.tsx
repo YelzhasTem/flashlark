@@ -7,6 +7,7 @@ import {
   useLocation,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -50,7 +51,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -93,9 +94,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Memora" },
+      { title: "Flashlark" },
       { name: "description", content: "A calm flashcard app for learning vocabulary." },
-      { property: "og:title", content: "Memora" },
+      { property: "og:title", content: "Flashlark" },
       {
         property: "og:description",
         content: "A calm flashcard app for learning vocabulary.",
@@ -103,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "en_US" },
 
-      { name: "twitter:title", content: "Memora" },
+      { name: "twitter:title", content: "Flashlark" },
       {
         name: "twitter:description",
         content: "A calm flashcard app for learning vocabulary.",

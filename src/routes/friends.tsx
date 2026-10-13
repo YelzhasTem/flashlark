@@ -21,10 +21,10 @@ import { getUserErrorMessage } from "@/lib/user-errors";
 export const Route = createFileRoute("/friends")({
   head: () => ({
     meta: [
-      { title: "Friends — Memora" },
+      { title: "Friends — Flashlark" },
       {
         name: "description",
-        content: "Find friends, send requests, and manage your Memora friends list.",
+        content: "Find friends, send requests, and manage your Flashlark friends list.",
       },
     ],
   }),

@@ -2,7 +2,7 @@
 
 ## Security model
 
-`public.profiles` is Memora's public identity directory. A row may be visible to
+`public.profiles` is Flashlark's public identity directory. A row may be visible to
 its owner, to friend-search RPCs, or to visitors when the owner publishes a
 marketplace deck or collection. Row Level Security limits which rows can be
 read, while column privileges and the physical schema limit which fields can be

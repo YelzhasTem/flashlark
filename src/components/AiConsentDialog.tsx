@@ -31,7 +31,7 @@ export function AiConsentDialog() {
           <AlertDialogDescription asChild>
             <div className="space-y-2">
               <p>
-                To create cards, translations, associations and reading texts, Memora sends the
+                To create cards, translations, associations and reading texts, Flashlark sends the
                 words, text, web page or image you submit to Google&apos;s Gemini API. Your email
                 and account details are not sent.
               </p>
