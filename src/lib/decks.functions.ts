@@ -8,6 +8,7 @@ import {
   normalizeDefinitionLanguage,
 } from "@/lib/languages";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { fetchAllPages } from "@/lib/paged-query";
 
 const MIN_DECK_CARDS = 1;
 const MAX_DECK_CARDS = 100;
@@ -32,20 +33,25 @@ export const getMyDecks = createServerFn({ method: "GET" })
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    const cardsRes = await supabase
-      .from("cards")
-      .select("id, deck_id, term, definition, known, position, created_at")
-      .eq("user_id", userId)
-      // Positions can tie (after a delete and an add). Without a tiebreak a refetch, which
-      // happens on every app resume, may return tied cards in a new order and restart a study run.
-      .order("position", { ascending: true })
-      .order("created_at", { ascending: true })
-      .order("id", { ascending: true });
+    // A library can hold more than the 1000 rows one request returns, so cards are paged.
+    const cardsRes = await fetchAllPages((from, to) =>
+      supabase
+        .from("cards")
+        .select("id, deck_id, term, definition, known, position, created_at")
+        .eq("user_id", userId)
+        // Positions can tie (after a delete and an add). Without a tiebreak a refetch, which
+        // happens on every app resume, may return tied cards in a new order and restart a study
+        // run. The id tiebreak also keeps pages from overlapping.
+        .order("position", { ascending: true })
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to),
+    );
 
     if (decksRes.error) throw new Error(decksRes.error.message);
     if (cardsRes.error) throw new Error(cardsRes.error.message);
 
-    return { decks: decksRes.data ?? [], cards: cardsRes.data ?? [] };
+    return { decks: decksRes.data ?? [], cards: cardsRes.data };
   });
 
 export const createDeckWithCardsRecord = createServerFn({ method: "POST" })

@@ -13,7 +13,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/uuid.test.ts tests/translation-split.test.ts tests/ai-security.test.ts tests/deck-creation-errors.test.ts tests/report-validation.test.ts tests/marketplace-errors.test.ts tests/marketplace-static.test.mjs tests/collection-replacement-errors.test.ts tests/collection-replacement-static.test.mjs tests/deck-csv.test.ts tests/review-forecast.test.ts tests/user-errors.test.ts tests/languages.test.ts tests/ai-consent.test.ts tests/route-nesting-static.test.mjs",
+    "test": "node --experimental-strip-types --test tests/uuid.test.ts tests/multiple-choice.test.ts tests/translation-split.test.ts tests/ai-security.test.ts tests/deck-creation-errors.test.ts tests/report-validation.test.ts tests/marketplace-errors.test.ts tests/marketplace-static.test.mjs tests/collection-replacement-errors.test.ts tests/collection-replacement-static.test.mjs tests/deck-csv.test.ts tests/review-forecast.test.ts tests/user-errors.test.ts tests/languages.test.ts tests/ai-consent.test.ts tests/route-nesting-static.test.mjs",
     "check:profile-privacy": "npm run test:security:profiles:static && npm run typecheck",
     "check:study-integrity": "npm run test:security:study:static && npm run typecheck",
     "check:ai-security": "npm run test:security:ai:static && npm run test:security:ai:unit && npm run typecheck",

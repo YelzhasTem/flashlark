@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { canPlayMultipleChoice } from "@/lib/multiple-choice";
 import { useDeck, type Card } from "@/lib/decks";
 import { recordStreakToday } from "@/lib/streak";
 import { recordMultipleChoiceAnswer, recordSpeedRun, useSpeedRecords } from "@/lib/stats";
@@ -65,6 +66,8 @@ function SpeedPage() {
   const [retryNonce, setRetryNonce] = useState(0);
   const loadingQuestionKeys = useRef(new Set<string>());
   const timerRef = useRef<number | null>(null);
+  // Bumped on every start, so an answer that comes back after "Try again" is ignored.
+  const runRef = useRef(0);
   const records = useSpeedRecords(deckId).slice(0, 5);
 
   useEffect(
@@ -117,14 +120,15 @@ function SpeedPage() {
     );
   }
 
-  const canPlay = deck.cards.length >= 4;
+  const canPlay = canPlayMultipleChoice(deck.cards);
 
   const start = async (d: Duration) => {
-    if (!canPlay || startPending) return;
+    if (!canPlay || startPending || answerPending) return;
     setStartPending(true);
     setQuestionError("");
     try {
       await beginStudySession(deckId, "speed", d);
+      runRef.current += 1;
       setDuration(d);
       setLeft(d);
       setScore(0);
@@ -180,6 +184,7 @@ function SpeedPage() {
   const cur = curSeed ? issued[curSeed.key] : undefined;
   const pick = async (selectedOptionId: string) => {
     if (!cur || !curSeed || !running || answerPending) return;
+    const run = runRef.current;
     setAnswerPending(true);
     setQuestionError("");
     try {
@@ -189,6 +194,7 @@ function SpeedPage() {
         question: cur,
         selectedOptionId,
       });
+      if (run !== runRef.current) return;
       const ok = result.correct;
       if (ok) playCorrectSound();
       else playWrongSound();
@@ -209,6 +215,7 @@ function SpeedPage() {
       }
       setIdx((current) => current + 1);
     } catch (error) {
+      if (run !== runRef.current) return;
       setQuestionError(error instanceof Error ? error.message : "Could not check this answer");
     } finally {
       setAnswerPending(false);
@@ -257,7 +264,7 @@ function SpeedPage() {
 
         {!canPlay ? (
           <div className="rounded-3xl border border-dashed border-border p-12 text-center text-muted-foreground">
-            At least 4 cards are required.
+            This mode needs at least 4 cards with different answers.
           </div>
         ) : !running && !finished ? (
           <div className="rounded-3xl border border-border bg-card p-10 text-center">
@@ -333,7 +340,7 @@ function SpeedPage() {
               <Button
                 className="rounded-full"
                 onClick={() => start(duration)}
-                disabled={startPending}
+                disabled={startPending || answerPending}
               >
                 <RotateCcw className="h-4 w-4" /> Try again
               </Button>
