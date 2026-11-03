@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isUuid } from "@/lib/uuid";
 import { accountLearningDb } from "@/lib/account-learning-db";
+import { fetchAllPages } from "@/lib/paged-query";
 import {
   completeStudySession,
   submitMultipleChoiceStudyAnswer,
@@ -309,14 +310,20 @@ export async function hydrateSessionLog(deckId?: string, sinceMs = 1000 * 60 * 6
     return;
   }
   const cutoff = new Date(Date.now() - sinceMs).toISOString();
-  let query = accountLearningDb()
-    .from("study_events")
-    .select("deck_id, card_key, correct, response_ms, answered_at")
-    .eq("user_id", userId)
-    .gte("answered_at", cutoff)
-    .order("answered_at", { ascending: true });
-  if (deckId) query = query.eq("deck_id", deckId);
-  const { data, error } = await query;
+  // A busy day (several Speed runs) can pass the 1000 rows one request returns, and with an
+  // ascending order the newest answers were the ones cut off, so events are paged.
+  const { data, error } = await fetchAllPages((from, to) => {
+    let query = accountLearningDb()
+      .from("study_events")
+      .select("id, deck_id, card_key, correct, response_ms, answered_at")
+      .eq("user_id", userId)
+      .gte("answered_at", cutoff);
+    if (deckId) query = query.eq("deck_id", deckId);
+    return query
+      .order("answered_at", { ascending: true })
+      .order("id", { ascending: true })
+      .range(from, to);
+  });
   if (error) {
     console.warn("[Learning] Could not load study events:", error.message);
     return;
