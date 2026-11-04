@@ -7,6 +7,9 @@ import { useDeckStats, accuracyFor, weakCardIds } from "@/lib/stats";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CharCounter } from "@/components/CharCounter";
+import { SpeakButton } from "@/components/SpeakButton";
+import { CARD_SIDE_MAX_LENGTH } from "@/lib/card-limits";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -581,19 +584,27 @@ function DeckPage() {
         {/* Add card */}
         <form onSubmit={handleAdd} className="rounded-3xl border border-border bg-card p-6 mb-10">
           <h2 className="font-display text-xl mb-4">Add card</h2>
-          <div className="grid md:grid-cols-[1fr_1.4fr_auto] gap-3">
-            <Input
-              placeholder={`${learningLanguage.label} word`}
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              disabled={!canSaveCard}
-            />
-            <Input
-              placeholder={`${definitionLanguage.label} translation or definition`}
-              value={def}
-              onChange={(e) => setDef(e.target.value)}
-              disabled={!canSaveCard}
-            />
+          <div className="grid md:grid-cols-[1fr_1.4fr_auto] gap-3 md:items-start">
+            <div className="space-y-1">
+              <Input
+                placeholder={`${learningLanguage.label} word`}
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+                maxLength={CARD_SIDE_MAX_LENGTH}
+                disabled={!canSaveCard}
+              />
+              <CharCounter length={term.length} />
+            </div>
+            <div className="space-y-1">
+              <Input
+                placeholder={`${definitionLanguage.label} translation or definition`}
+                value={def}
+                onChange={(e) => setDef(e.target.value)}
+                maxLength={CARD_SIDE_MAX_LENGTH}
+                disabled={!canSaveCard}
+              />
+              <CharCounter length={def.length} />
+            </div>
             <Button type="submit" className="rounded-full" disabled={!canSaveCard}>
               <Plus className="h-4 w-4" /> Add
             </Button>
@@ -619,6 +630,11 @@ function DeckPage() {
                 key={card.id}
                 className="rounded-2xl border border-border bg-card px-5 py-4 flex items-center gap-4"
               >
+                <SpeakButton
+                  text={card.term}
+                  language={deck.targetLanguage}
+                  className="-ml-2 text-muted-foreground"
+                />
                 <div className="flex-1 min-w-0">
                   <p className="font-display text-lg font-semibold truncate">{card.term}</p>
                   <p className="text-sm text-muted-foreground truncate">{card.definition}</p>
