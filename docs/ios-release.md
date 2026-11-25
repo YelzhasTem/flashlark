@@ -12,7 +12,7 @@
   и новее, Xcode 26.4.1–26.6 на macOS Tahoe 26.2+, Xcode 27 на macOS Tahoe 26.6+.
 - Node.js 22 или новее (этого требует Capacitor 8).
 - Активный аккаунт Apple Developer Program.
-- Приложение в App Store Connect с Bundle ID из `capacitor.config.ts` (`com.yelzhastem.memora`).
+- Приложение в App Store Connect с Bundle ID из `capacitor.config.ts` (`com.yelzhastem.flashlark`).
   Если Bundle ID другой, поменяйте `appId` и `PRODUCT_BUNDLE_IDENTIFIER` в Xcode.
 
 ## Сборка
