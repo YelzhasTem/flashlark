@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { canPlayMultipleChoice } from "@/lib/multiple-choice";
 import { useDeck, type Card } from "@/lib/decks";
 import { recordStreakToday } from "@/lib/streak";
 import { recordMultipleChoiceAnswer } from "@/lib/stats";
@@ -68,7 +69,7 @@ function DeepPage() {
   const [retryNonce, setRetryNonce] = useState(0);
   const loadingQuestionKeys = useRef(new Set<string>());
 
-  const canPlay = useMemo(() => deck && deck.cards.length >= 4, [deck]);
+  const canPlay = useMemo(() => !!deck && canPlayMultipleChoice(deck.cards), [deck]);
 
   useEffect(() => {
     if (deck && canPlay) {
@@ -250,7 +251,7 @@ function DeepPage() {
 
         {!canPlay ? (
           <div className="rounded-3xl border border-dashed border-border p-12 text-center text-muted-foreground">
-            This mode needs at least 4 cards in the deck.
+            This mode needs at least 4 cards with different answers.
           </div>
         ) : finished ? (
           <div className="rounded-3xl border border-border bg-card p-12 text-center">

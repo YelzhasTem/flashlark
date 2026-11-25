@@ -6,6 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { getDeckCreationErrorMessage } from "@/lib/deck-creation-errors";
 import { getMarketplaceError } from "@/lib/marketplace-errors";
 import { httpError } from "@/lib/server-http-error";
+import { fetchAllPages } from "@/lib/paged-query";
 import {
   parseCollectionReportInput,
   parseDeckReportInput,
@@ -119,7 +120,15 @@ async function attachCommunityMeta(
       .from("profiles")
       .select("user_id, username, display_name, avatar_url")
       .in("user_id", authorIds),
-    supabase.from("cards").select("deck_id").in("deck_id", deckIds),
+    // Up to 100 cards per deck, so a page of decks easily passes the 1000-row limit.
+    fetchAllPages((from, to) =>
+      supabase
+        .from("cards")
+        .select("id, deck_id")
+        .in("deck_id", deckIds)
+        .order("id")
+        .range(from, to),
+    ),
     supabase.from("deck_likes").select("deck_id").eq("user_id", userId).in("deck_id", deckIds),
     supabase.from("deck_saves").select("deck_id").eq("user_id", userId).in("deck_id", deckIds),
   ]);

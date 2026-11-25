@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { canPlayMultipleChoice } from "@/lib/multiple-choice";
 import { useEffect, useRef, useState } from "react";
 import { markDeckStudied } from "@/lib/last-studied";
 import { useServerFn } from "@tanstack/react-start";
@@ -500,7 +501,7 @@ function DeckPage() {
                   desc: "Choose the correct translation.",
                 },
               ].map((m) => {
-                const disabled = m.to === "/deep/$deckId" && deck.cards.length < 4;
+                const disabled = m.to === "/deep/$deckId" && !canPlayMultipleChoice(deck.cards);
                 return (
                   <button
                     key={m.to}

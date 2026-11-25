@@ -39,6 +39,15 @@ const sessions = new Map<string, Promise<SessionHandle>>();
 const sessionContentVersions = new Map<string, string>();
 const queues = new Map<string, Promise<unknown>>();
 const completions = new Map<string, Promise<CompletedStudySession>>();
+// Keys of text answers whose request failed, so retrying the same answer cannot count it twice.
+type FailedTextAttempt = {
+  questionKey: string;
+  idempotencyKey: string;
+  responseMs?: number;
+  at: number;
+};
+const failedTextAttempts = new Map<string, FailedTextAttempt>();
+const FAILED_ATTEMPT_TTL_MS = 10 * 60 * 1000;
 
 function sessionKey(deckId: string, mode: StudyMode) {
   return `${deckId}:${mode}`;
@@ -62,6 +71,31 @@ function isRetryable(message: string) {
   return /fetch|network|timeout|connection|load failed/i.test(message);
 }
 
+const RETRY_DELAY_MS = 800;
+
+/**
+ * Runs a study RPC, retrying once after a short pause when the network dropped (an immediate
+ * retry right after unlocking the phone usually fails the same way). Network failures are
+ * reported in plain words instead of the browser's "Failed to fetch" / "Load failed".
+ */
+async function callStudyRpc<T>(
+  invoke: () => PromiseLike<{ data: T | null; error: { message: string } | null }>,
+): Promise<T> {
+  let response = await invoke();
+  if (response.error && isRetryable(response.error.message)) {
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    response = await invoke();
+  }
+  if (response.error) {
+    throw new Error(
+      isRetryable(response.error.message)
+        ? "No connection to the server. Check your internet connection and try again."
+        : response.error.message,
+    );
+  }
+  return response.data as T;
+}
+
 async function createSession(
   deckId: string,
   mode: StudyMode,
@@ -78,10 +112,8 @@ async function createSession(
       })
       .single();
 
-  let response = await invoke();
-  if (response.error && isRetryable(response.error.message)) response = await invoke();
-  if (response.error) throw new Error(response.error.message);
-  return { id: response.data.session_id, deckId, mode, durationSeconds };
+  const data = await callStudyRpc(invoke);
+  return { id: data.session_id, deckId, mode, durationSeconds };
 }
 
 export function beginStudySession(
@@ -97,6 +129,10 @@ export function beginStudySession(
   else sessionContentVersions.delete(key);
   queues.set(key, Promise.resolve());
   completions.delete(key);
+  // Saved keys belong to the old session's questions; the server would reject them now.
+  for (const attemptKey of failedTextAttempts.keys()) {
+    if (attemptKey.startsWith(`${key}\u0000`)) failedTextAttempts.delete(attemptKey);
+  }
   // Do not cache a failed start: the next attempt should try again.
   session.catch(() => {
     if (sessions.get(key) === session) {
@@ -210,10 +246,7 @@ export async function issueStudyQuestion(input: {
       })
       .single();
 
-  let response = await invoke();
-  if (response.error && isRetryable(response.error.message)) response = await invoke();
-  if (response.error) throw new Error(response.error.message);
-  return parseQuestion(response.data);
+  return parseQuestion(await callStudyRpc(invoke));
 }
 
 async function recordIssuedAnswer(input: {
@@ -242,10 +275,7 @@ async function recordIssuedAnswer(input: {
         })
         .single();
 
-    let response = await invoke();
-    if (response.error && isRetryable(response.error.message)) response = await invoke();
-    if (response.error) throw new Error(response.error.message);
-    return response.data;
+    return callStudyRpc(invoke);
   });
 }
 
@@ -259,15 +289,43 @@ export async function submitTextStudyAnswer(input: {
   questionKey?: string;
   idempotencyKey?: string;
 }) {
-  const question = await issueStudyQuestion(input);
-  if (question.answerKind !== "text" || question.verificationType !== "server_verified") {
-    throw new Error("The server did not issue a server-verified text question");
+  // If the last try of this exact answer failed (for example the server saved it but the reply
+  // was lost on a weak network), send it again with the same keys. The server then returns the
+  // saved result instead of counting the answer a second time.
+  const attemptKey = [
+    sessionKey(input.deckId, input.mode),
+    input.cardId,
+    input.direction,
+    input.submittedAnswer.trim(),
+  ].join("\u0000");
+  const previous = failedTextAttempts.get(attemptKey);
+  const attempt =
+    previous && Date.now() - previous.at < FAILED_ATTEMPT_TTL_MS
+      ? previous
+      : {
+          questionKey: input.questionKey ?? newKey(),
+          idempotencyKey: input.idempotencyKey ?? newKey(),
+          responseMs: input.responseMs,
+          at: Date.now(),
+        };
+  try {
+    const question = await issueStudyQuestion({ ...input, questionKey: attempt.questionKey });
+    if (question.answerKind !== "text" || question.verificationType !== "server_verified") {
+      throw new Error("The server did not issue a server-verified text question");
+    }
+    const result = await recordIssuedAnswer({
+      ...input,
+      question,
+      submittedAnswer: input.submittedAnswer,
+      responseMs: attempt.responseMs,
+      idempotencyKey: attempt.idempotencyKey,
+    });
+    failedTextAttempts.delete(attemptKey);
+    return result;
+  } catch (error) {
+    failedTextAttempts.set(attemptKey, attempt);
+    throw error;
   }
-  return recordIssuedAnswer({
-    ...input,
-    question,
-    submittedAnswer: input.submittedAnswer,
-  });
 }
 
 export function submitMultipleChoiceStudyAnswer(input: {
@@ -313,8 +371,11 @@ export function completeStudySession(
   if (existing) return existing;
 
   const completionKey = newKey();
+  // Pick the session now, not when the queue reaches this step: by then "Try again" may have
+  // started a new run, and the old run would complete the new session instead of its own.
+  const sessionPromise = prepareStudySession(deckId, mode);
   const completion = enqueue(key, async () => {
-    const session = await prepareStudySession(deckId, mode);
+    const session = await sessionPromise;
     const invoke = () =>
       supabase
         .rpc("complete_study_session", {
@@ -323,10 +384,7 @@ export function completeStudySession(
         })
         .single();
 
-    let response = await invoke();
-    if (response.error && isRetryable(response.error.message)) response = await invoke();
-    if (response.error) throw new Error(response.error.message);
-    return response.data;
+    return callStudyRpc(invoke);
   });
 
   completions.set(key, completion);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isUuid } from "@/lib/uuid";
 import { accountLearningDb } from "@/lib/account-learning-db";
+import { fetchAllPages } from "@/lib/paged-query";
 import { submitTextStudyAnswer, type StudyDirection } from "@/lib/study-session";
 
 // ===== Deck-level settings =====
@@ -98,12 +99,18 @@ export async function hydrateDelayedRecallState() {
         .select("deck_id, delayed_recall_enabled")
         .eq("user_id", userId)
         .eq("delayed_recall_enabled", true),
-      accountLearningDb()
-        .from("delayed_recall_entries")
-        .select(
-          "deck_id, card_id, score, stage_idx, interval_idx, due_at, correct_count, wrong_count, created_at, last_review_at",
-        )
-        .eq("user_id", userId),
+      // Every card ever scheduled across all decks: can pass the 1000-row page limit.
+      fetchAllPages((from, to) =>
+        accountLearningDb()
+          .from("delayed_recall_entries")
+          .select(
+            "deck_id, card_id, score, stage_idx, interval_idx, due_at, correct_count, wrong_count, created_at, last_review_at",
+          )
+          .eq("user_id", userId)
+          .order("deck_id", { ascending: true })
+          .order("card_id", { ascending: true })
+          .range(from, to),
+      ),
     ]);
 
   if (settingsError || entriesError) {
