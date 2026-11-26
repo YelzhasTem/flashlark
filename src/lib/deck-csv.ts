@@ -1,7 +1,9 @@
 // CSV import/export for decks. Pure helpers (no app imports) so they run in node tests.
 
-export const CSV_MAX_TERM_LENGTH = 160;
-export const CSV_MAX_DEFINITION_LENGTH = 300;
+import { CARD_SIDE_MAX_LENGTH } from "./card-limits.ts";
+
+export const CSV_MAX_TERM_LENGTH = CARD_SIDE_MAX_LENGTH;
+export const CSV_MAX_DEFINITION_LENGTH = CARD_SIDE_MAX_LENGTH;
 export const CSV_MAX_FILE_BYTES = 1024 * 1024;
 
 export type CsvCard = { term: string; definition: string };

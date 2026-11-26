@@ -57,6 +57,13 @@ test("counts incomplete and oversized rows as skipped", () => {
   assert.deepEqual(result, { cards: [{ term: "ok", definition: "fine" }], skipped: 3 });
 });
 
+test("keeps sides up to 150 characters and skips longer ones", () => {
+  const max = "y".repeat(150);
+  const tooLong = "z".repeat(151);
+  const result = parseDeckCsv(`${max},${max}\n${tooLong},ok\nok,${tooLong}\n`);
+  assert.deepEqual(result, { cards: [{ term: max, definition: max }], skipped: 2 });
+});
+
 test("ignores extra columns", () => {
   const result = parseDeckCsv("a,b,c,d\n");
   assert.deepEqual(result.cards, [{ term: "a", definition: "b" }]);

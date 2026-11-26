@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useDeck } from "@/lib/decks";
+import type { LearningLanguage } from "@/lib/languages";
 import { useServerFn } from "@tanstack/react-start";
 import { recordStreakToday } from "@/lib/streak";
 import { recordSelfReportedAnswer } from "@/lib/stats";
@@ -10,7 +11,9 @@ import { useDeckShuffleEnabled } from "@/lib/shuffle-settings";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StudyDeckFallback } from "@/components/StudyDeckFallback";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Check, X, Shuffle, RotateCcw, Repeat, Star } from "lucide-react";
+import { ArrowLeft, Check, X, Shuffle, RotateCcw, Repeat, Star, Volume2 } from "lucide-react";
+import { SpeakButton } from "@/components/SpeakButton";
+import { isSpeechSupported, speakAloud, stopSpeaking, useAutoSpeak } from "@/lib/speech";
 import { rateDeck } from "@/lib/community.functions";
 
 export const Route = createFileRoute("/study/$deckId")({
@@ -32,6 +35,8 @@ function StudyPage() {
     useDeck(deckId);
   const rateOriginalDeck = useServerFn(rateDeck);
   const [shuffleEnabled, setShuffleEnabled] = useDeckShuffleEnabled(deckId);
+  const [autoSpeak, setAutoSpeak] = useAutoSpeak();
+  const [speechSupported, setSpeechSupported] = useState(false);
 
   const [order, setOrder] = useState<string[]>([]);
   const [idx, setIdx] = useState(0);
@@ -105,6 +110,31 @@ function StudyPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shuffleEnabled]);
 
+  useEffect(() => {
+    setSpeechSupported(isSpeechSupported());
+    return () => stopSpeaking();
+  }, []);
+
+  // Auto-speak reads the side that is showing: the front when a card opens, the back on flip.
+  const visibleCard = deck?.cards.find((c) => c.id === order[idx]);
+  const visibleSpeech =
+    visibleCard && deck ? cardSideSpeech(deck, visibleCard, reverseSides, flipped) : null;
+  const visibleSpeechKey = visibleSpeech
+    ? `${order[idx]}|${flipped}|${reverseSides}|${visibleSpeech.text}`
+    : "";
+  const lastSpokenKeyRef = useRef("");
+  useEffect(() => {
+    if (!autoSpeak || !visibleSpeech || visibleSpeechKey === lastSpokenKeyRef.current) return;
+    // A short wait skips in-between states, such as the old card turning back to its front
+    // for a moment after "Know it" before the next card shows.
+    const timer = setTimeout(() => {
+      lastSpokenKeyRef.current = visibleSpeechKey;
+      void speakAloud(visibleSpeech.text, visibleSpeech.language);
+    }, 200);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoSpeak, visibleSpeechKey]);
+
   if (!deck) {
     return (
       <StudyDeckFallback
@@ -125,6 +155,20 @@ function StudyPage() {
   const backLabel = reverseSides ? "Word" : "Translation";
   const frontText = current ? (reverseSides ? current.definition : current.term) : "";
   const backText = current ? (reverseSides ? current.term : current.definition) : "";
+  const frontLanguage = reverseSides ? deck.definitionLanguage : deck.targetLanguage;
+  const backLanguage = reverseSides ? deck.targetLanguage : deck.definitionLanguage;
+
+  const toggleAutoSpeak = () => {
+    const next = !autoSpeak;
+    setAutoSpeak(next);
+    if (!next) {
+      stopSpeaking();
+    } else if (visibleSpeech) {
+      // Speaking inside the tap also unlocks speech on iOS for the cards that follow.
+      lastSpokenKeyRef.current = visibleSpeechKey;
+      void speakAloud(visibleSpeech.text, visibleSpeech.language);
+    }
+  };
 
   const handleKnown = async () => {
     if (!current || pendingRef.current) return;
@@ -241,6 +285,18 @@ function StudyPage() {
             >
               <Shuffle className="h-4 w-4" /> Shuffle
             </Button>
+            {speechSupported && (
+              <Button
+                aria-pressed={autoSpeak}
+                variant={autoSpeak ? "secondary" : "ghost"}
+                size="sm"
+                className={`rounded-full ${autoSpeak ? "border border-accent bg-accent/10 text-accent hover:bg-accent/15" : ""}`}
+                onClick={toggleAutoSpeak}
+                title="Read each card aloud when it opens"
+              >
+                <Volume2 className="h-4 w-4" /> Auto-speak
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -368,6 +424,12 @@ function StudyPage() {
                   aria-hidden={flipped}
                   className="flip-face rounded-3xl bg-card border border-border/70 shadow-[var(--shadow-card)] flex flex-col items-center justify-center p-10 text-center"
                 >
+                  <SpeakButton
+                    text={frontText}
+                    language={frontLanguage}
+                    tabIndex={flipped ? -1 : 0}
+                    className="absolute right-4 top-4 text-muted-foreground"
+                  />
                   <span className="text-xs uppercase tracking-[0.2em] text-accent font-semibold mb-6">
                     {frontLabel}
                   </span>
@@ -385,6 +447,12 @@ function StudyPage() {
                   aria-hidden={!flipped}
                   className="flip-face flip-face--back rounded-3xl bg-primary text-primary-foreground shadow-[var(--shadow-card)] flex flex-col items-center justify-center p-10 text-center"
                 >
+                  <SpeakButton
+                    text={backText}
+                    language={backLanguage}
+                    tabIndex={flipped ? 0 : -1}
+                    className="absolute right-4 top-4 hover:bg-white/10"
+                  />
                   <span className="text-xs uppercase tracking-[0.2em] opacity-70 font-semibold mb-6">
                     {backLabel}
                   </span>
@@ -429,4 +497,17 @@ function StudyPage() {
       </main>
     </div>
   );
+}
+
+function cardSideSpeech(
+  deck: { targetLanguage: LearningLanguage; definitionLanguage: LearningLanguage },
+  card: { term: string; definition: string },
+  reverseSides: boolean,
+  flipped: boolean,
+) {
+  // Without reverse the front is the word and the back its translation.
+  const showsTerm = reverseSides === flipped;
+  return showsTerm
+    ? { text: card.term, language: deck.targetLanguage }
+    : { text: card.definition, language: deck.definitionLanguage };
 }

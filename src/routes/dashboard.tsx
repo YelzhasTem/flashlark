@@ -8,6 +8,8 @@ import { StreakCard } from "@/components/StreakCard";
 import { ReviewForecastCard } from "@/components/ReviewForecastCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CharCounter } from "@/components/CharCounter";
+import { CARD_SIDE_MAX_LENGTH, cardFitsLimit } from "@/lib/card-limits";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -402,7 +404,7 @@ function Home() {
       const term = card.term.trim();
       const definition = card.definition.trim();
       const key = `${term.toLocaleLowerCase("en-US")}::${definition.toLocaleLowerCase("en-US")}`;
-      if (!term || !definition || seen.has(key)) continue;
+      if (!term || !definition || seen.has(key) || !cardFitsLimit({ term, definition })) continue;
       seen.add(key);
       nextCards.push({ term, definition });
     }
@@ -1012,6 +1014,7 @@ function Home() {
                             <Input
                               placeholder={`Type a ${learningLanguage.label} word`}
                               value={wordInput}
+                              maxLength={CARD_SIDE_MAX_LENGTH}
                               onChange={(e) => setWordInput(e.target.value)}
                               onKeyDown={(e) => {
                                 if (
@@ -1026,9 +1029,11 @@ function Home() {
                               }}
                               disabled={trLoading || manualCards.length >= MAX_DECK_CARDS}
                             />
+                            <CharCounter length={wordInput.length} className="-mt-1" />
                             <Input
                               placeholder={`Type a ${definitionLanguage.label} translation`}
                               value={definitionInput}
+                              maxLength={CARD_SIDE_MAX_LENGTH}
                               onChange={(e) => setDefinitionInput(e.target.value)}
                               onKeyDown={(e) => {
                                 if (
@@ -1043,6 +1048,7 @@ function Home() {
                               }}
                               disabled={trLoading || manualCards.length >= MAX_DECK_CARDS}
                             />
+                            <CharCounter length={definitionInput.length} className="-mt-1" />
                             <div className="flex flex-col gap-2 sm:flex-row">
                               <Button
                                 type="button"

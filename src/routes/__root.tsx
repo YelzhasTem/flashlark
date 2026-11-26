@@ -18,6 +18,7 @@ import { RecallNotifier } from "@/components/RecallNotifier";
 import { LanguageProvider } from "@/lib/i18n";
 import { AuthGate } from "@/components/AuthGate";
 import { playButtonSound } from "@/lib/sounds";
+import { installSpeechUnlock } from "@/lib/speech";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { AiConsentDialog } from "@/components/AiConsentDialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -165,6 +166,8 @@ function RootComponent() {
     });
     return () => sub.subscription.unsubscribe();
   }, [queryClient]);
+
+  useEffect(() => installSpeechUnlock(), []);
 
   useEffect(() => {
     const handlePointerUp = (event: PointerEvent) => {
